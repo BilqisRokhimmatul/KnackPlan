@@ -187,9 +187,9 @@ def cek_duplikasi(username_mahasiswa, nim, nomor_telepon):
 
 def simpan_data(data):
     file_mahasiswa = "datamahasiswa.csv"  
-    with open(file_mahasiswa, mode='a', newline='') as file: #gunakan mode append untuk memastikan file sebelumnya ga terhps hanya menambahkan saja
-        writer = csv.writer(file) #Objek writer bertanggung jawab untuk menulis data ke file CSV.
-        writer.writerow(data)#Menulis satu baris data ke file CSV
+    with open(file_mahasiswa, mode='a', newline='') as file: 
+        writer = csv.writer(file) 
+        writer.writerow(data)
 
 def exit_program():
     clear()
@@ -201,16 +201,16 @@ def exit_program():
 ######################################################### M E N U ################################################
 FILE_KULIAH = 'mata_kuliah.csv'
 FILE_TUGAS = 'tugas.csv'
-file_mahasiswa = 'data_mahasiswa.csv'
+FILE_MAHASISWA = 'data_mahasiswa.csv'
 HARI_DALAM_MINGGU = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu']
 
-def baca_data(file_mahasiswa):
+def baca_data(FILE_MAHASISWA):
     try:
-        with open(file_mahasiswa, mode='r') as file:
+        with open(FILE_MAHASISWA, mode='r') as file:
             reader = csv.reader(file)
             return [row for row in reader if len(row) > 0]  
     except FileNotFoundError:
-        print(f"File '{file_mahasiswa}' tidak ditemukan. Membuat file baru...")
+        print(f"File '{FILE_MAHASISWA}' tidak ditemukan. Membuat file baru...")
         return []
 
 
@@ -431,6 +431,7 @@ def menu_admin():
                 simpan_kuliah(kuliah)
                 print(f"Kuliah ID {id_kuliah} berhasil dihapus.")
         elif pilihan == '5':
+            halaman_knackplan()
             break
         else:
             print("Pilihan tidak valid.")
@@ -615,6 +616,7 @@ def menu_pengguna(username_mahasiswa):
             input()
 
         elif pilihan == '7':
+            halaman_knackplan()
             break
         else:
             print("Pilihan tidak valid.")
@@ -671,29 +673,9 @@ def jadwal_knapsack(interval_bebas: List[Tuple[datetime.time, datetime.time]], t
                 break
     return jadwal
 
-# def pemilihan_peran():
-#     bersihkan_tugas_selesai()
-#     while True:
-#         cetak_garis()
-#         print("Selamat datang di Sistem Manajemen Kuliah dan Tugas (Versi Konsol)")
-#         print("Pilih Peran:")
-#         print("1. Admin (Kelola Kuliah)")
-#         print("2. Pengguna (Kelola Tugas)")
-#         print("3. Keluar")
-#         pilihan = input("Pilih peran: ")
-#         if pilihan == '1':
-#             menu_admin()
-#         elif pilihan == '2':
-#             menu_pengguna()
-#         elif pilihan == '3':
-#             print("Selamat tinggal!")
-#             break
-#         else:
-#             print("Pilihan tidak valid.")
-
 if __name__ == "__main__":
     clear()
     cover()
     halaman_knackplan()
-    # pemilihan_peran()
+   
     
