@@ -5,7 +5,7 @@ from datetime import date
 from typing import List, Tuple
 
 
-######################################################### C O V E R ##############################################
+######################################################### C O V E R #############################################################
 def clear():
     os.system("cls")
     
@@ -198,7 +198,7 @@ def exit_program():
     garis("=", 114)
     exit()
 
-######################################################### M E N U ################################################
+######################################################### M E N U ######################################################################
 FILE_KULIAH = 'mata_kuliah.csv'
 FILE_TUGAS = 'tugas.csv'
 FILE_MAHASISWA = 'data_mahasiswa.csv'
@@ -325,7 +325,9 @@ def cetak_kuliah_hari_ini(kuliah, hari):
         print(f"  [{k['IDMataKuliah']}] {k['NamaMataKuliah']} dari {k['WaktuMulai']} sampai {k['WaktuSelesai']}")
     return terfilter
 
+############################################### M E N U  A D M I N ########################################################################
 def menu_admin():
+    clear()
     kuliah = muat_kuliah()
     while True:
         cetak_garis()
@@ -334,7 +336,7 @@ def menu_admin():
         print("2. Tambah Kuliah")
         print("3. Edit Kuliah")
         print("4. Hapus Kuliah")
-        print("5. Kembali ke Pemilihan Peran")
+        print("5. Kembali ke Halaman KnackPlan ")
         pilihan = input("Pilih opsi: ")
         if pilihan == '1':
             hari = input_hari()
@@ -436,6 +438,7 @@ def menu_admin():
         else:
             print("Pilihan tidak valid.")
 
+################################################### M E N U P E N G G U N A #########################################################
 def menu_pengguna(username_mahasiswa):
     bersihkan_tugas_selesai()
     kuliah = muat_kuliah()
@@ -453,7 +456,7 @@ def menu_pengguna(username_mahasiswa):
             for k in kuliah_hari_ini:
                 print(f"  {k['NamaMataKuliah']} dari {k['WaktuMulai']} sampai {k['WaktuSelesai']}")
                 
-        input('LANJUT?')##########################
+        input('LANJUT?')
         
         cetak_garis()
         print("1. Lihat semua tugas")
@@ -462,7 +465,7 @@ def menu_pengguna(username_mahasiswa):
         print("4. Hapus tugas")
         print("5. Tandai tugas sebagai selesai")
         print("6. Lihat jadwal hari ini dengan tugas yang dijadwalkan di waktu luang")
-        print("7. Kembali ke Pemilihan Peran")
+        print("7. Kembali ke halaman KnackPlan")
         pilihan = input("Pilih opsi: ")
         if pilihan == '1':
             if not tugas:
@@ -573,7 +576,7 @@ def menu_pengguna(username_mahasiswa):
                 bersihkan_tugas_selesai()
                 tugas = muat_tugas()
         elif pilihan == '6':
-            os.system('cls')###################
+            os.system('cls')
             interval_bebas = ambil_interval_bebas(kuliah_hari_ini)
 
             if not interval_bebas:
@@ -676,6 +679,7 @@ def jadwal_knapsack(interval_bebas: List[Tuple[datetime.time, datetime.time]], t
 if __name__ == "__main__":
     clear()
     cover()
+    enter("\nSELAMAT DATANG DI TEMPAT SEWA KAMI, KNACKPLAN(oﾟvﾟ)ノ. ")
     halaman_knackplan()
    
     
