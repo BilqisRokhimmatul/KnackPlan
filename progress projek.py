@@ -228,6 +228,8 @@ def muat_kuliah():
                 kuliah.append(baris)
     return kuliah
 
+kuliah = muat_kuliah()
+
 def simpan_kuliah(kuliah: List[dict]):
     with open(FILE_KULIAH, 'w', newline='', encoding='utf-8') as f:
         nama_kolom = ['IDMataKuliah', 'NamaMataKuliah', 'Hari', 'WaktuMulai', 'WaktuSelesai']
@@ -325,38 +327,68 @@ def cetak_kuliah_hari_ini(kuliah, hari):
         print(f"  [{k['IDMataKuliah']}] {k['NamaMataKuliah']} dari {k['WaktuMulai']} sampai {k['WaktuSelesai']}")
     return terfilter
 
-############################################### M E N U  A D M I N ########################################################################
+######################################################## M E N U  A D M I N #################################################################
 def menu_admin():
-    clear()
-    kuliah = muat_kuliah()
     while True:
-        cetak_garis()
-        print("MENU ADMIN - Mengelola Kuliah")
-        print("1. Lihat Kuliah untuk hari tertentu")
-        print("2. Tambah Kuliah")
-        print("3. Edit Kuliah")
-        print("4. Hapus Kuliah")
-        print("5. Kembali ke Halaman KnackPlan ")
-        pilihan = input("Pilih opsi: ")
-        if pilihan == '1':
-            hari = input_hari()
-            cetak_kuliah_hari_ini(kuliah, hari)
-        elif pilihan == '2':
-            nama_kuliah = input("Masukkan nama kuliah: ").strip()
-            hari = input_hari()
-            waktu_mulai = input_waktu("Masukkan waktu mulai")
-            waktu_selesai = input_waktu("Masukkan waktu selesai")
-            if str_ke_waktu(waktu_selesai) <= str_ke_waktu(waktu_mulai):
-                print("Waktu selesai harus setelah waktu mulai. Kuliah tidak ditambahkan.")
-                continue
-            tumpang_tindih_ditemukan = False
-            for k in kuliah:
-                if k['Hari'] == hari:
-                    if tumpang_tindih(str_ke_waktu(waktu_mulai), str_ke_waktu(waktu_selesai),
-                                      str_ke_waktu(k['WaktuMulai']), str_ke_waktu(k['WaktuSelesai'])):
-                        print(f"Tumpang tindih dengan kuliah yang ada [{k['IDMataKuliah']}] {k['NamaMataKuliah']} {k['WaktuMulai']}–{k['WaktuSelesai']}")
-                        tumpang_tindih_ditemukan = True
-                        break
+        clear()
+        garis("=")
+        print("""                               
+                                                    MENU ADMIN   
+
+                                                1. Lihat Kuliah untuk hari tertentu
+                                                2. Tambah Kuliah
+                                                3. Edit Kuliah
+                                                4. Hapus Kuliah
+                                                5. Kembali ke Halaman KnackPlan
+        """)
+        garis("=")
+        
+        try:
+            pilih = int(input("Pilih Opsi yang tersedia >> "))
+            if pilih == 1:
+                clear()
+                lihat_kuliah()
+            elif pilih == 2:
+                clear()
+                tambah_kuliah()
+            elif pilih == 3:
+                clear()
+                edit_kuliah()
+            elif pilih == 4:
+                clear()
+                hapus_kuliah()
+            elif pilih == 5:
+                halaman_knackplan()
+                break
+            else:
+                print("Opss, Opsi yang Anda pilih tidak tersedia, silahkan  coba lagi")
+        except ValueError:
+            print("tolong masukkan input dalam bentuk angka.")
+
+
+def lihat_kuliah():
+    global kuliah
+    while True:
+        hari = input_hari()
+        cetak_kuliah_hari_ini(kuliah, hari)
+
+def tambah_kuliah():
+    while True:
+        nama_kuliah = input("Masukkan nama kuliah: ").strip()
+        hari = input_hari()
+        waktu_mulai = input_waktu("Masukkan waktu mulai")
+        waktu_selesai = input_waktu("Masukkan waktu selesai")
+        if str_ke_waktu(waktu_selesai) <= str_ke_waktu(waktu_mulai):
+            print("Waktu selesai harus setelah waktu mulai. Kuliah tidak ditambahkan.")
+            continue
+        tumpang_tindih_ditemukan = False
+        for k in kuliah:
+            if k['Hari'] == hari:
+                if tumpang_tindih(str_ke_waktu(waktu_mulai), str_ke_waktu(waktu_selesai),
+                                     str_ke_waktu(k['WaktuMulai']), str_ke_waktu(k['WaktuSelesai'])):
+                    print(f"Tumpang tindih dengan kuliah yang ada [{k['IDMataKuliah']}] {k['NamaMataKuliah']} {k['WaktuMulai']}–{k['WaktuSelesai']}")
+                    tumpang_tindih_ditemukan = True
+                    break
             if tumpang_tindih_ditemukan:
                 print("Tidak dapat menambahkan kuliah yang tumpang tindih.")
                 continue
@@ -366,77 +398,89 @@ def menu_admin():
             kuliah.append(kuliah_baru)
             simpan_kuliah(kuliah)
             print(f"Kuliah ditambahkan dengan ID {id_baru}.")
-        elif pilihan == '3':
+
+
+def edit_kuliah():
+    while True:
+        try:
+            id_kuliah = int(input("Masukkan ID kuliah untuk diedit: "))
+        except ValueError:
+            print("ID tidak valid.")
+            continue
+
+        kuliah_yang_ditemukan = [k for k in kuliah if k['IDMataKuliah'] == id_kuliah]
+        if not kuliah_yang_ditemukan:
+            print("Kuliah tidak ditemukan.")
+            continue
+
+        kuliah = kuliah_yang_ditemukan[0]
+        print(f"Mengedit Kuliah [{kuliah['IDMataKuliah']}] {kuliah['NamaMataKuliah']} {kuliah['Hari']} {kuliah['WaktuMulai']}-{kuliah['WaktuSelesai']}")
+        
+        nama_baru = input(f"Nama kuliah baru (biarkan kosong untuk mempertahankan '{kuliah['NamaMataKuliah']}'): ").strip()
+        if nama_baru:
+            kuliah['NamaMataKuliah'] = nama_baru
+
+        hari_baru = input(f"Hari baru (biarkan kosong untuk mempertahankan '{kuliah['Hari']}'): ").capitalize().strip()
+        if hari_baru:
+            if hari_baru not in HARI_DALAM_MINGGU:
+                print("Hari yang dimasukkan tidak valid. Edit dibatalkan.")
+                continue
+            kuliah['Hari'] = hari_baru
+
+        waktu_mulai_baru = input(f"Waktu mulai baru (biarkan kosong untuk mempertahankan '{kuliah['WaktuMulai']}'): ").strip()
+        if waktu_mulai_baru:
             try:
-                id_kuliah = int(input("Masukkan ID kuliah untuk diedit: "))
-            except ValueError:
-                print("ID tidak valid.")
+                datetime.datetime.strptime(waktu_mulai_baru, '%H:%M')
+                kuliah['WaktuMulai'] = waktu_mulai_baru
+            except:
+                print("Format waktu tidak valid. Edit dibatalkan.")
                 continue
-            kuliah_yang_ditemukan = [k for k in kuliah if k['IDMataKuliah'] == id_kuliah]
-            if not kuliah_yang_ditemukan:
-                print("Kuliah tidak ditemukan.")
-                continue
-            kuliah = kuliah_yang_ditemukan[0]
-            print(f"Mengedit Kuliah [{kuliah['IDMataKuliah']}] {kuliah['NamaMataKuliah']} {kuliah['Hari']} {kuliah['WaktuMulai']}-{kuliah['WaktuSelesai']}")
-            nama_baru = input(f"Nama kuliah baru (biarkan kosong untuk mempertahankan '{kuliah['NamaMataKuliah']}'): ").strip()
-            if nama_baru:
-                kuliah['NamaMataKuliah'] = nama_baru
-            hari_baru = input(f"Hari baru (biarkan kosong untuk mempertahankan '{kuliah['Hari']}'): ").capitalize().strip()
-            if hari_baru:
-                if hari_baru not in HARI_DALAM_MINGGU:
-                    print("Hari yang dimasukkan tidak valid. Edit dibatalkan.")
-                    continue
-                kuliah['Hari'] = hari_baru
-            waktu_mulai_baru = input(f"Waktu mulai baru (biarkan kosong untuk mempertahankan '{kuliah['WaktuMulai']}'): ").strip()
-            if waktu_mulai_baru:
-                try:
-                    datetime.datetime.strptime(waktu_mulai_baru, '%H:%M')
-                    kuliah['WaktuMulai'] = waktu_mulai_baru
-                except:
-                    print("Format waktu tidak valid. Edit dibatalkan.")
-                    continue
-            waktu_selesai_baru = input(f"Waktu selesai baru (biarkan kosong untuk mempertahankan '{kuliah['WaktuSelesai']}'): ").strip()
-            if waktu_selesai_baru:
-                try:
-                    datetime.datetime.strptime(waktu_selesai_baru, '%H:%M')
-                    kuliah['WaktuSelesai'] = waktu_selesai_baru
-                except:
-                    print("Format waktu tidak valid. Edit dibatalkan.")
-                    continue
-            if str_ke_waktu(kuliah['WaktuSelesai']) <= str_ke_waktu(kuliah['WaktuMulai']):
-                print("Waktu selesai harus setelah waktu mulai. Edit dibatalkan.")
-                continue
-            tumpang_tindih_ditemukan = False
-            for k in kuliah:
-                if k['IDMataKuliah'] != kuliah['IDMataKuliah'] and k['Hari'] == kuliah['Hari']:
-                    if tumpang_tindih(str_ke_waktu(kuliah['WaktuMulai']), str_ke_waktu(kuliah['WaktuSelesai']),
-                                      str_ke_waktu(k['WaktuMulai']), str_ke_waktu(k['WaktuSelesai'])):
-                        print(f"Tumpang tindih dengan kuliah yang ada [{k['IDMataKuliah']}] {k['NamaMataKuliah']} {k['WaktuMulai']}–{k['WaktuSelesai']}")
-                        tumpang_tindih_ditemukan = True
-                        break
-            if tumpang_tindih_ditemukan:
-                print("Edit menghasilkan kuliah yang tumpang tindih. Edit dibatalkan.")
-                continue
-            simpan_kuliah(kuliah)
-            print("Kuliah berhasil diedit.")
-        elif pilihan == '4':
+
+        waktu_selesai_baru = input(f"Waktu selesai baru (biarkan kosong untuk mempertahankan '{kuliah['WaktuSelesai']}'): ").strip()
+        if waktu_selesai_baru:
             try:
-                id_kuliah = int(input("Masukkan ID kuliah untuk dihapus: "))
-            except ValueError:
-                print("ID tidak valid.")
+                datetime.datetime.strptime(waktu_selesai_baru, '%H:%M')
+                kuliah['WaktuSelesai'] = waktu_selesai_baru
+            except:
+                print("Format waktu tidak valid. Edit dibatalkan.")
                 continue
-            sebelum_len = len(kuliah)
-            kuliah = [k for k in kuliah if k['IDMataKuliah'] != id_kuliah]
-            if len(kuliah) == sebelum_len:
-                print("ID kuliah tidak ditemukan.")
-            else:
-                simpan_kuliah(kuliah)
-                print(f"Kuliah ID {id_kuliah} berhasil dihapus.")
-        elif pilihan == '5':
-            halaman_knackplan()
-            break
+
+        if str_ke_waktu(kuliah['WaktuSelesai']) <= str_ke_waktu(kuliah['WaktuMulai']):
+            print("Waktu selesai harus setelah waktu mulai. Edit dibatalkan.")
+            continue
+
+        tumpang_tindih_ditemukan = False
+        for k in kuliah:
+            if k['IDMataKuliah'] != kuliah['IDMataKuliah'] and k['Hari'] == kuliah['Hari']:
+                if tumpang_tindih(str_ke_waktu(kuliah['WaktuMulai']), str_ke_waktu(kuliah['WaktuSelesai']),
+                                str_ke_waktu(k['WaktuMulai']), str_ke_waktu(k['WaktuSelesai'])):
+                    print(f"Tumpang tindih dengan kuliah yang ada [{k['IDMataKuliah']}] {k['NamaMataKuliah']} {k['WaktuMulai']}–{k['WaktuSelesai']}")
+                    tumpang_tindih_ditemukan = True
+                    break
+
+        if tumpang_tindih_ditemukan:
+            print("Edit menghasilkan kuliah yang tumpang tindih. Edit dibatalkan.")
+            continue
+
+        simpan_kuliah(kuliah)
+        print("Kuliah berhasil diedit.")
+        break
+            
+def hapus_kuliah():
+    while True:
+        try:
+            id_kuliah = int(input("Masukkan ID kuliah untuk dihapus: "))
+        except ValueError:
+            print("ID tidak valid.")
+            continue
+        sebelum_len = len(kuliah)
+        kuliah = [k for k in kuliah if k['IDMataKuliah'] != id_kuliah]
+        if len(kuliah) == sebelum_len:
+            print("ID kuliah tidak ditemukan.")
         else:
-            print("Pilihan tidak valid.")
+            simpan_kuliah(kuliah)
+            print(f"Kuliah ID {id_kuliah} berhasil dihapus.")
+
 
 ################################################### M E N U P E N G G U N A #########################################################
 def menu_pengguna(username_mahasiswa):
