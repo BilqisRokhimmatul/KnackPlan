@@ -28,7 +28,7 @@ def enter(a=""):
 def halaman_knackplan():
     print("""
                                                 1. REGISTRASI
-                                                2. LOGIN SEBAGAI ADMIN
+                                                2. LOGIN SEBAGAI DOSEN
                                                 3. LOGIN SEBAGAI MAHASISWA
                                                 4. EXIT
 """)
@@ -39,7 +39,7 @@ def halaman_knackplan():
             if pilih == 1:
                 registrasi()
             elif pilih == 2:
-                login_admin()
+                login_dosen()
             elif pilih == 3:
                 login_mahasiswa()
             elif pilih == 4:
@@ -114,37 +114,37 @@ def registrasi():
                     print("Maaf anda salah input, tolong masukkan input dalam bentuk angka")
                     continue
             
-def login_admin():
+def login_dosen():
     clear()
     while True:
-        username_admin = input("Username : ")
-        while len(username_admin) == 0:  
+        username_dosen = input("Username : ")
+        while len(username_dosen) == 0:  
             print("Opss, Username tidak boleh kosong, Silahkan coba lagi")
-            username_admin = input("Username : ")
+            username_dosen = input("Username : ")
             
-        password_admin = input("Password : ")
-        while len(password_admin) == 0:  
+        password_dosen = input("Password : ")
+        while len(password_dosen) == 0:  
             print("Opss, Password tidak boleh kosong, Silahkan coba lagi")
-            password_admin = input("Password : ")
+            password_dosen = input("Password : ")
             
-        if cek_loginadmin(username_admin, password_admin):
+        if cek_logindosen(username_dosen, password_dosen):
             print("\nLogin berhasil sebagai Admin :D")
-            menu_admin()
+            menu_dosen()
         else:
             print("Login gagal, Username atau password salah, Silahkan coba lagi")
             continue
 
-def cek_loginadmin(username_admin, password_admin):
-    file_admin = "dataadmin.csv" 
+def cek_logindosen(username_dosen, password_dosen):
+    file_dosen = "datadosen.csv" 
     try:
-        with open(file_admin, mode='r') as file:
+        with open(file_dosen, mode='r') as file:
             reader = csv.reader(file)
             for row in reader:
-                if row[0] == username_admin and row[1] == password_admin:
+                if row[0] == username_dosen and row[1] == password_dosen:
                     return True
         return False
     except FileNotFoundError:
-        print(f"File {file_admin} tidak ditemukan.")
+        print(f"File {file_dosen} tidak ditemukan.")
         return False
     
 def login_mahasiswa():
@@ -156,7 +156,7 @@ def login_mahasiswa():
             print("Login berhasil sebagai Mahasiswa :D")
             while True:
                 clear()
-                menu_pengguna(username_mahasiswa)
+                menu_mahasiswa(username_mahasiswa)
                 break  
             break 
         else:
@@ -328,12 +328,12 @@ def cetak_kuliah_hari_ini(kuliah, hari):
     return terfilter
 
 ######################################################## M E N U  A D M I N #################################################################
-def menu_admin():
+def menu_dosen():
     while True:
         clear()
         garis("=")
         print("""                               
-                                                    MENU ADMIN   
+                                                    MENU DOSEN 
 
                                                 1. Lihat Kuliah untuk hari tertentu
                                                 2. Tambah Kuliah
@@ -348,6 +348,7 @@ def menu_admin():
             if pilih == 1:
                 clear()
                 lihat_kuliah()
+                menu_dosen()
             elif pilih == 2:
                 clear()
                 tambah_kuliah()
@@ -371,33 +372,50 @@ def lihat_kuliah():
     while True:
         hari = input_hari()
         cetak_kuliah_hari_ini(kuliah, hari)
+        input()
+        break
 
 def tambah_kuliah():
-    while True:
-        nama_kuliah = input("Masukkan nama kuliah: ").strip()
-        hari = input_hari()
-        waktu_mulai = input_waktu("Masukkan waktu mulai")
-        waktu_selesai = input_waktu("Masukkan waktu selesai")
-        if str_ke_waktu(waktu_selesai) <= str_ke_waktu(waktu_mulai):
-            print("Waktu selesai harus setelah waktu mulai. Kuliah tidak ditambahkan.")
-            continue
-        tumpang_tindih_ditemukan = False
-        for k in kuliah:
-            if k['Hari'] == hari:
-                if tumpang_tindih(str_ke_waktu(waktu_mulai), str_ke_waktu(waktu_selesai),
-                                     str_ke_waktu(k['WaktuMulai']), str_ke_waktu(k['WaktuSelesai'])):
-                    print(f"Tumpang tindih dengan kuliah yang ada [{k['IDMataKuliah']}] {k['NamaMataKuliah']} {k['WaktuMulai']}–{k['WaktuSelesai']}")
-                    tumpang_tindih_ditemukan = True
-                    break
-            if tumpang_tindih_ditemukan:
-                print("Tidak dapat menambahkan kuliah yang tumpang tindih.")
-                continue
-            id_baru = id_kuliah_selanjutnya(kuliah)
-            kuliah_baru = {'IDMataKuliah': id_baru, 'NamaMataKuliah': nama_kuliah, 'Hari': hari,
-                           'WaktuMulai': waktu_mulai, 'WaktuSelesai': waktu_selesai}
-            kuliah.append(kuliah_baru)
-            simpan_kuliah(kuliah)
-            print(f"Kuliah ditambahkan dengan ID {id_baru}.")
+    
+    global kuliah
+
+    nama_kuliah = input("Masukkan nama kuliah: ").strip()
+    hari = input_hari()
+    waktu_mulai = input_waktu("Masukkan waktu mulai")
+    waktu_selesai = input_waktu("Masukkan waktu selesai")
+
+    if str_ke_waktu(waktu_selesai) <= str_ke_waktu(waktu_mulai):
+        print("Waktu selesai harus setelah waktu mulai. Kuliah tidak ditambahkan.")
+        return  # Keluar dari fungsi agar tidak lanjut ke bawah
+
+    # Cek apakah ada tumpang tindih dengan jadwal lain
+    tumpang_tindih_ditemukan = False
+    for k in kuliah:
+        if k['Hari'] == hari:
+            if tumpang_tindih(
+                str_ke_waktu(waktu_mulai), str_ke_waktu(waktu_selesai),
+                str_ke_waktu(k['WaktuMulai']), str_ke_waktu(k['WaktuSelesai'])
+            ):
+                print(f"Tumpang tindih dengan kuliah [{k['IDMataKuliah']}] {k['NamaMataKuliah']} {k['WaktuMulai']}–{k['WaktuSelesai']}")
+                tumpang_tindih_ditemukan = True
+                break
+
+    if tumpang_tindih_ditemukan:
+        print("Tidak dapat menambahkan kuliah yang tumpang tindih.")
+        return  # Stop, jangan tambahkan
+
+    # Jika semua valid, tambahkan kuliah
+    id_baru = id_kuliah_selanjutnya(kuliah)
+    kuliah_baru = {
+        'IDMataKuliah': id_baru,
+        'NamaMataKuliah': nama_kuliah,
+        'Hari': hari,
+        'WaktuMulai': waktu_mulai,
+        'WaktuSelesai': waktu_selesai
+    }
+    kuliah.append(kuliah_baru)
+    simpan_kuliah(kuliah)
+    print(f"Kuliah ditambahkan dengan ID {id_baru}.")
 
 
 def edit_kuliah():
@@ -482,8 +500,8 @@ def hapus_kuliah():
             print(f"Kuliah ID {id_kuliah} berhasil dihapus.")
 
 
-################################################### M E N U P E N G G U N A #########################################################
-def menu_pengguna(username_mahasiswa):
+################################################### M E N U M A H A S I S W A #########################################################
+def menu_mahasiswa(username_mahasiswa):
     bersihkan_tugas_selesai()
     kuliah = muat_kuliah()
     tugas = muat_tugas()
@@ -492,7 +510,7 @@ def menu_pengguna(username_mahasiswa):
     kuliah_hari_ini.sort(key=lambda x: str_ke_waktu(x['WaktuMulai']))
     while True:
         cetak_garis()
-        print(f"MENU PENGGUNA - Manajemen Tugas (Hari ini adalah {hari})")
+        print(f"MENU MAHASISWA - Manajemen Tugas (Hari ini adalah {hari})")
         print("Jadwal Kuliah Hari Ini:")
         if not kuliah_hari_ini:
             print("  Tidak ada kuliah hari ini.")
@@ -654,7 +672,7 @@ def menu_pengguna(username_mahasiswa):
                 acara.append(('Kuliah', kuliah['NamaMataKuliah'], mulai, selesai))
             for sch in jadwal:
                 acara.append(('Tugas', sch['task']['NamaTugas'], sch['start_time'], sch['end_time']))
-            acara.sort(key=lambda x: x[2])  # urutkan berdasarkan waktu mulai
+            acara.sort(key=lambda x: x[2])  
 
             for ev in acara:
                 st = waktu_ke_str(ev[2])
