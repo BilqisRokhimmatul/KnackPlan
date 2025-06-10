@@ -205,8 +205,6 @@ FILE_TUGAS = 'tugas.csv'
 FILE_MAHASISWA = 'data_mahasiswa.csv' 
 HARI_DALAM_MINGGU = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'] 
 
-#Fungsi: Membaca isi file CSV yang berisi data mahasiswa.
-#Kegunaan: Mengembalikan isi file sebagai list baris. Jika file tidak ditemukan, mencetak pesan dan mengembalikan list kosong.
 def baca_data(FILE_MAHASISWA):
     try:
         with open(FILE_MAHASISWA, mode='r') as file:
@@ -220,9 +218,6 @@ def baca_data(FILE_MAHASISWA):
         print(f"File '{FILE_MAHASISWA}' tidak ditemukan. Membuat file baru...")
         return []
 
-
-# Fungsi: Membaca data kuliah dari file CSV FILE_KULIAH.
-# Kegunaan: Mengembalikan list dict kuliah yang sudah diubah strukturnya, misalnya 'IDMataKuliah', 'NamaMataKuliah', dst.
 def muat_kuliah():
     kuliah = []
 
@@ -244,8 +239,6 @@ def muat_kuliah():
 
 kuliah = muat_kuliah()
 
-# Fungsi: Menyimpan list dict kuliah ke file FILE_KULIAH dalam bentuk CSV.
-# Kegunaan: Memperbarui file jadwal kuliah jika ada perubahan/tambahan/hapus.
 def simpan_kuliah(kuliah: List[dict]):
     with open(FILE_KULIAH, 'w', newline='', encoding='utf-8') as file:
         kolom = ['IDMataKuliah', 'NamaMataKuliah', 'Hari', 'WaktuMulai', 'WaktuSelesai']
@@ -261,8 +254,6 @@ def simpan_kuliah(kuliah: List[dict]):
                 k['WaktuSelesai']
             ])
 
-# Fungsi: Membaca file FILE_TUGAS dan mengubah isinya menjadi list dict.
-# Kegunaan: Menyediakan akses ke semua tugas yang tersimpan, termasuk estimasi durasi, tenggat, dan statusnya.
 def muat_tugas():
     tugas = []
 
@@ -284,8 +275,6 @@ def muat_tugas():
 
 tugas = muat_tugas()
 
-# Fungsi: Menulis data list tugas ke file FILE_TUGAS dalam format CSV.
-# Kegunaan: Menyimpan perubahan data tugas seperti penambahan atau update status.
 def simpan_tugas(tugas: List[dict]):
     with open(FILE_TUGAS, 'w', newline='', encoding='utf-8') as file:
         csv_writer = csv.writer(file)
@@ -299,9 +288,6 @@ def simpan_tugas(tugas: List[dict]):
                 t['Status']
             ])
 
-
-# Fungsi: Menghapus semua tugas yang sudah berstatus “selesai”.
-# Kegunaan: Membersihkan file tugas.csv agar hanya berisi tugas yang belum selesai dikerjakan.
 def bersihkan_tugas_selesai():
     tugas = muat_tugas()
     tugas_baru = []
@@ -311,19 +297,12 @@ def bersihkan_tugas_selesai():
     simpan_tugas(tugas_baru) 
 
 
-# Fungsi: Mengonversi string waktu (format 'HH:MM') ke objek datetime.time.
-# Kegunaan: Memudahkan perbandingan dan pengurutan waktu.
 def str_ke_waktu(t_str):
     return datetime.datetime.strptime(t_str, '%H:%M').time()
-    
-# Fungsi: Mengubah objek datetime.time menjadi string dengan format 'HH:MM'.
-# Kegunaan: Memudahkan menampilkan waktu dalam format yang mudah dibaca.
+
 def waktu_ke_str(t):
     return t.strftime('%H:%M')
 
-
-# Fungsi: Mengambil hari saat ini dalam format bahasa Indonesia.
-# Kegunaan: Digunakan untuk menampilkan atau menyaring jadwal/tugas berdasarkan hari ini.
 def hari_ini():
     hari = datetime.datetime.today().strftime('%A')  
     terjemahan_hari = {
@@ -337,13 +316,9 @@ def hari_ini():
     }
     return terjemahan_hari.get(hari, hari)  
 
-# Fungsi: Menampilkan garis pemisah sepanjang 50 karakter.
-# Kegunaan: Memperindah tampilan menu atau output ke terminal.
 def cetak_garis():
     print('-'*50)  
 
-# Fungsi: Menerima input waktu dari pengguna dan memvalidasinya (format HH:MM).
-# Kegunaan: Menghindari input waktu yang salah oleh pengguna.
 def input_waktu(prompt):
     while True:  
         t = input(prompt + " (HH:MM, format 24h): ")  
@@ -353,8 +328,6 @@ def input_waktu(prompt):
         except ValueError:
             print("Format waktu tidak valid. Silakan masukkan dalam format HH:MM 24-jam.")  
 
-# Fungsi: Menerima input hari dan memvalidasi apakah termasuk hari dalam seminggu (Senin-Minggu).
-# Kegunaan: Untuk input hari saat menambahkan kuliah atau menjadwalkan tugas.
 def input_hari():
     while True: 
         hari = input("Masukkan hari dalam seminggu (mis. Senin): ").capitalize()  
@@ -362,27 +335,19 @@ def input_hari():
             return hari  
         print("Hari tidak valid. Silakan masukkan nama hari yang valid, mis. Senin.") 
 
-# Fungsi: Menghasilkan ID kuliah baru berdasarkan ID terakhir.
-# Kegunaan: Memberikan ID unik untuk setiap kuliah baru yang ditambahkan.
 def id_kuliah_selanjutnya(kuliah):
     if kuliah:  
         return max(k['IDMataKuliah'] for k in kuliah) + 1  
     return 1  
 
-# Fungsi: Menghasilkan ID tugas baru berdasarkan ID terakhir.
-# Kegunaan: Memberikan ID unik untuk setiap tugas baru.
 def id_tugas_selanjutnya(tugas):
     if tugas:  
         return max(t['IDTugas'] for t in tugas) + 1  
     return 1  
 
-# Fungsi: Mengecek apakah dua waktu bertabrakan atau tidak.
-# Kegunaan: Mencegah bentrok waktu jadwal kuliah atau tugas yang dijadwalkan.
 def tumpang_tindih(start1, end1, start2, end2):
     return not (end1 <= start2 or end2 <= start1)  
 
-# Fungsi: Menampilkan kuliah yang terjadi pada hari tertentu.
-# Kegunaan: Memberikan tampilan terstruktur dan informasi kepada pengguna tentang kuliah hari itu.
 def cetak_kuliah_hari_ini(kuliah, hari):
     print(f"Jadwal Kuliah untuk {hari}:")  
     terfilter = [k for k in kuliah if k['Hari'] == hari]  
